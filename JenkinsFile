@@ -12,7 +12,13 @@ pipeline {
             steps {
                 sh '''
                     echo 'node installed'
+                    ls -la
+                    node --version
                     npm --version
+                    // same as npm instal for cicd tools ? 
+                    npm ci
+                    npm run build
+                    ls -la
                 '''
             }
         }
