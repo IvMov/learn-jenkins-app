@@ -2,19 +2,20 @@ pipeline {
     agent any
 
     stages {
-
-        // stage('Build') {
-        //     steps {
-        //         sh '''
-        //             echo 'node installed'
-        //             node --version
-        //             npm --version
-        //             # same as npm instal for cicd tools ? 
-        //             npm ci
-        //             npm run build
-        //         '''
-        //     }
-        // }
+        /*
+        stage('Build') {
+            steps {
+                sh '''
+                    echo 'node installed'
+                    node --version
+                    npm --version
+                    # same as npm instal for cicd tools ? 
+                    npm ci
+                    npm run build
+                '''
+            }
+        }
+        */
 
         stage ("Run Tests") {
             parallel {
