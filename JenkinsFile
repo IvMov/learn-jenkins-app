@@ -5,6 +5,7 @@ pipeline {
         NETLIFY_SITE_ID = '85b3430b-2b9e-43ee-9331-f9a21332a405'
         // credentials is method to acces the credentials helper of jenkins
         NETLIFY_AUTH_TOKEN = credentials('netlify-tocken')
+        REACT_APP_VERSION = "1.2.$BUILD_ID"
     }
     stages {
         stage('Build') {
