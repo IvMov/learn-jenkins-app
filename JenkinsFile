@@ -41,7 +41,8 @@ pipeline {
                     # install serve locally instead of -g global
                     npm install serve
                     # thats why instead of serve -s build we call local path in build folders -s build
-                    node_modules/.bin/serve -s build 
+                    node_modules/.bin/serve -s build &
+                    sleep 10
                     npx playwright test
                 '''
                 echo "end E2E"
