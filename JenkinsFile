@@ -88,27 +88,7 @@ pipeline {
             }
         }
 
-        stage ("Deploy Staging") {
-            agent{
-                    docker{
-                        image 'node:18-alpine'
-                        reuseNode true
-                    }
-                }
-            
-            steps {
-                sh '''
-                    echo 'deploying to staging'
-                    npm install netlify-cli node-jq 
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-staging-output.json
-                '''
-                script {
-                    env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json", returnStdout: true)
-                }
-            }
-        }
-
-        stage("Staging test E2E") {
+        stage("Deploy Staging") {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -116,12 +96,15 @@ pipeline {
                 }
             }
             environment{
-                CI_ENVIRONMENT_URL = "${env.STAGING_URL}"
+                CI_ENVIRONMENT_URL = "PLACEHOLDER"
             }
             steps{ 
                 echo "start E2E for staging"
                 sh '''
                     npx playwright test --reporter=html
+                    npm install netlify-cli node-jq 
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-staging-output.json
+                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json)
                 '''
                 echo "end E2E staging"
             }
@@ -143,36 +126,7 @@ pipeline {
             }
         }
 
-         stage("Approval") {
-            steps{
-                timeout(time: 59, unit: 'SECONDS') {
-                    input message: 'Do you wish to deploy to production?', ok: 'Yes, I am sure!'
-                } 
-            }
-        }
-
-
-        stage ("Deploy Prod") {
-            agent{
-                        docker{
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
-                    }
-            steps {
-                sh '''
-                    npm install netlify-cli 
-                    node_modules/.bin/netlify --version
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
-                    echo 'every minute check'
-                '''
-            }
-        }
-
-       
-
-        stage("Prod test E2E") {
+        stage("Deploy Prod") {
             agent {
                 docker {
                     image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
@@ -185,6 +139,8 @@ pipeline {
             steps{ 
                 echo "start E2E"
                 sh '''
+                    npm install netlify-cli 
+                    node_modules/.bin/netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
                 '''
                 echo "end E2E"
