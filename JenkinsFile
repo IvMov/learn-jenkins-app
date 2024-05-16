@@ -1,24 +1,27 @@
 pipeline {
-    agent{
-        docker{
-            image 'node:18-alpine'
-            reuseNode true
-        }
-    }
+    agent any
+    
     stages {
-        stage('Build') {
-            steps {
-                sh '''
-                    echo 'node installed'
-                    node --version
-                    npm --version
-                    # same as npm instal for cicd tools ? 
-                    npm ci
-                    npm run build
-                '''
-            }
-        }
+
+        // stage('Build') {
+        //     steps {
+        //         sh '''
+        //             echo 'node installed'
+        //             node --version
+        //             npm --version
+        //             # same as npm instal for cicd tools ? 
+        //             npm ci
+        //             npm run build
+        //         '''
+        //     }
+        // }
         stage("Test") {
+            agent{
+                docker{
+                    image 'node:18-alpine'
+                    reuseNode true
+                }
+            }
             steps{ 
                 echo "start tests task"
                 sh '''
@@ -31,7 +34,7 @@ pipeline {
         stage("E2E") {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'mcr.microsoft.com/playwright:v1.44.0-jammy'
                     reuseNode true
                 }
             }
