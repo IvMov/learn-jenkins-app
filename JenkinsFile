@@ -77,7 +77,7 @@ pipeline {
                                     keepAll: false, 
                                     reportDir: 'playwright-report', 
                                     reportFiles: 'index.html', 
-                                    reportName: 'Playwright HTML Report', 
+                                    reportName: 'Playwright HTML Report Local', 
                                     reportTitles: '', 
                                     useWrapperFileDirectly: true
                                     ]
@@ -102,6 +102,41 @@ pipeline {
                     node_modules/.bin/netlify deploy --dir=build --prod
                     echo 'every minute check'
                 '''
+            }
+        }
+
+        stage("Prod test E2E") {
+            agent {
+                docker {
+                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    reuseNode true
+                }
+            }
+            environment{
+                CI_ENVIRONMENT_URL = 'https://jovial-medovik-88a854.netlify.app'
+            }
+            steps{ 
+                echo "start E2E"
+                sh '''
+                    npx playwright test --reporter=html
+                '''
+                echo "end E2E"
+            }
+            post {
+                always {
+                    publishHTML(
+                        [
+                            allowMissing: false, 
+                            alwaysLinkToLastBuild: false, 
+                            keepAll: false, 
+                            reportDir: 'playwright-report', 
+                            reportFiles: 'index.html', 
+                            reportName: 'Playwright HTML Report Prod', 
+                            reportTitles: '', 
+                            useWrapperFileDirectly: true
+                            ]
+                        )
+                }
             }
         }
     }
