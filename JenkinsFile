@@ -90,11 +90,11 @@ pipeline {
 
         stage ("Deploy Staging") {
             agent{
-                        docker{
-                            image 'node:18-alpine'
-                            reuseNode true
-                        }
+                    docker{
+                        image 'node:18-alpine'
+                        reuseNode true
                     }
+                }
             
             steps {
                 sh '''
@@ -106,8 +106,6 @@ pipeline {
                     env.STAGING_URL = sh(script: "node_modules/.bin/node-jq -r 'deploy_url' deploy-staging-output.json", returnStdout: true)
                 }
             }
-
-            
         }
 
         stage("Staging test E2E") {
@@ -136,7 +134,7 @@ pipeline {
                             keepAll: false, 
                             reportDir: 'playwright-report', 
                             reportFiles: 'index.html', 
-                            reportName: 'Playwright HTML Report Prod', 
+                            reportName: 'Playwright HTML Report Stage', 
                             reportTitles: '', 
                             useWrapperFileDirectly: true
                             ]
