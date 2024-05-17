@@ -59,18 +59,14 @@ pipeline {
                 stage("E2E") {
                     agent {
                         docker {
-                            image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                            image 'jenkins-app-base-image'
                             reuseNode true
                         }
                     }
                     steps{ 
                         echo "start E2E"
                         sh '''
-                            # install serve locally instead of -g global
-                            npm install serve
-                            # thats why instead of serve -s build we call local path in build folders -s build
-                            node_modules/.bin/serve -s build &
-                            sleep 5
+                            serve -s build
                             npx playwright test --reporter=html
                         '''
                         echo "end E2E"
