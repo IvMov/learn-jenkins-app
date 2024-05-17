@@ -8,12 +8,6 @@ pipeline {
         REACT_APP_VERSION = "1.2.$BUILD_ID"
     }
     stages {
-
-        stage("Docker build") {
-            steps{
-                sh "docker build -t jenkins-app-base-image ."
-            }
-        }
         stage('Build') {
             agent{
                         docker{
