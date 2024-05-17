@@ -8,6 +8,12 @@ pipeline {
         REACT_APP_VERSION = "1.2.$BUILD_ID"
     }
     stages {
+
+        stage("Docker build") {
+            steps{
+                sh "docker build -t jenkins-app-base-image ."
+            }
+        }
         stage('Build') {
             agent{
                         docker{
@@ -92,7 +98,7 @@ pipeline {
         stage("Deploy Staging") {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'jenkins-app-base-image'
                     reuseNode true
                 }
             }
@@ -101,11 +107,9 @@ pipeline {
             }
             steps{ 
                 echo "start E2E for staging"
-                sh '''
-                    
-                    npm install netlify-cli node-jq 
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-staging-output.json
-                    CI_ENVIRONMENT_URL=$(node_modules/.bin/node-jq -r '.deploy_url' deploy-staging-output.json)
+                sh ''' 
+                    netlify deploy --dir=build --json > deploy-staging-output.json
+                    CI_ENVIRONMENT_URL=$(node-jq -r '.deploy_url' deploy-staging-output.json)
                     npx playwright test --reporter=html
                 '''
                 echo "end E2E staging"
@@ -131,7 +135,7 @@ pipeline {
         stage("Deploy Prod") {
             agent {
                 docker {
-                    image 'mcr.microsoft.com/playwright:v1.39.0-jammy'
+                    image 'jenkins-app-base-image'
                     reuseNode true
                 }
             }
@@ -141,8 +145,7 @@ pipeline {
             steps{ 
                 echo "start E2E"
                 sh '''
-                    npm install netlify-cli 
-                    node_modules/.bin/netlify deploy --dir=build --prod
+                    netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
                 '''
                 echo "end E2E"
