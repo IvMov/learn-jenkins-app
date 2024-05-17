@@ -60,7 +60,7 @@ pipeline {
                     steps{ 
                         echo "start E2E"
                         sh '''
-                            serve -s build
+                            serve -s build &
                             npx playwright test --reporter=html
                         '''
                         echo "end E2E"
